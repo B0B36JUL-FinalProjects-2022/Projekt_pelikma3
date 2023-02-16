@@ -20,7 +20,7 @@ module Data
 
     struct variable <: Token
         value::String
-        function number(v::String)
+        function variable(v::String)
             return new(v)
         end
     end
@@ -162,6 +162,10 @@ module Data
         push!(q, TreeNode(t))
     end
 
+    function enqueueQ(t::variable, q)
+        push!(q, TreeNode(t))
+    end
+
     function enqueueQ(o::Operation, q)
         right = pop!(q)
         left = pop!(q)
@@ -192,6 +196,10 @@ module Data
     end
 
     function processToken(t::number, s, q)
+        enqueueQ(t, q)
+    end
+
+    function processToken(t::variable, s, q)
         enqueueQ(t, q)
     end
 

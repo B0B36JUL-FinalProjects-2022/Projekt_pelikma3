@@ -9,14 +9,23 @@ module differentiate
     d = Main.Data
 
 
-    function lex(text)
+    function lex(text, args...)
+        _rules = d.rules
+
+        for el in args
+            push!(_rules, (d.variable, Regex("^"*el)))
+        end
+
+        println(_rules)
+
+
         last_text = Nothing
         toks = []
         tokens = d.Token[]
 
         while length(text) > 0 && last_text != text
             ruled = false
-            for (type, regex) in d.rules
+            for (type, regex) in _rules
                 m = match(regex, text)
                 if !isnothing(m)
                     matched = m.match
@@ -40,6 +49,7 @@ module differentiate
             end
         end
 
+        @assert length(text)==0 "Error while lexing"
 
         tokens = tokens[d.filterwhitespace.(tokens)]
         return tokens
@@ -71,13 +81,14 @@ module differentiate
     end
 
 
-    tokenStream = lex("sin(3*5+1)^2+1")
+    tokenStream = lex("sin(3*5+1)^2+y", "x", "y")
     # println(tokenStream)
 
 
     root = shunting_yard(tokenStream)
 
     println(root)
+    println(root.right)
 
 
 
