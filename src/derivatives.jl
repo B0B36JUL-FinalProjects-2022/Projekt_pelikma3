@@ -5,6 +5,45 @@ include("data.jl")
 module Derivative
     d = Main.Data
 
+    function eval(token::d.variable, node::d.TreeNode, var::String, value::Float64)
+        return value
+    end
+    function eval(token::d.number, node::d.TreeNode, var::String, value::Float64)
+        return token.value
+    end
+    function eval(token::Nothing, node::d.TreeNode, var::String, value::Float64)
+        return 0
+    end
+    function eval(token::d.addition, node::d.TreeNode, var::String, value::Float64)
+        return evaluate(node.left, var, value) + evaluate(node.right, var, value)
+    end
+    function eval(token::d.subtraction, node::d.TreeNode, var::String, value::Float64)
+        return evaluate(node.left, var, value) - evaluate(node.right, var, value)
+    end
+    function eval(token::d.multiplication, node::d.TreeNode, var::String, value::Float64)
+        return evaluate(node.left, var, value) * evaluate(node.right, var, value)
+    end
+    function eval(token::d.division, node::d.TreeNode, var::String, value::Float64)
+        return evaluate(node.left, var, value) / evaluate(node.right, var, value)
+    end
+    function eval(token::d.sinus, node::d.TreeNode, var::String, value::Float64)
+        return sin(evaluate(node.right, var, value))
+    end
+    function eval(token::d.cosinus, node::d.TreeNode, var::String, value::Float64)
+        return cos(evaluate(node.right, var, value))
+    end
+    function eval(token::d.ln, node::d.TreeNode, var::String, value::Float64)
+        return log(evaluate(node.right, var, value))
+    end
+
+
+    function evaluate(root::d.TreeNode, var::String, value::Float64)
+        return eval(root.value, root, var, value)    
+    end
+    function evaluate(root::Nothing, var::String, value::Float64)
+        return 0 
+    end
+
     function differ(root::d.TreeNode, var::String)
         if isa(root.value, d.power)
             rootToken = d.multiplication()

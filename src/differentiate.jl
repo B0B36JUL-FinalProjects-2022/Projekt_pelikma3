@@ -82,7 +82,7 @@ module differentiate
 
 
     # tokenStream = lex("sin(3*5+1)^2+y", "x", "y")
-    tokenStream = lex("x^2", "x")
+    tokenStream = lex("5+cos(x)", "x")
     # println(tokenStream)
 
 
@@ -91,13 +91,17 @@ module differentiate
     println(root)
     println(root.left)
     println(root.right)
-    println(root.right.right)
+
+    println(der.evaluate(root, "s", 1.0))
 
 
     rootDer = der.differ(root, "x")
 
+    println(der.evaluate(rootDer, "s", 1.0))
 
-    println(rootDer)
+
+
+    # println(rootDer)
     # println(rootDer.left)
     # println(rootDer.left.left)
     # println(rootDer.left.right)
