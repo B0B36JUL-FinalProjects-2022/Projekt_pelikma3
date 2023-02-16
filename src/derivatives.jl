@@ -6,7 +6,27 @@ module Derivative
     d = Main.Data
 
     function differ(root::d.TreeNode, var::String)
-        if isa(root.value, d.multiplication)
+        if isa(root.value, d.sinus)
+            rd = differ(root.right, var)
+
+            rootToken = d.multiplication()
+            rootNode = d.TreeNode(rootToken)
+
+            leftToken = d.cosinus("cos")
+            leftNode = d.TreeNode(leftToken)
+
+            rootNode.left = leftNode
+            leftNode.parent = rootNode
+
+            rootNode.right = rd
+            rd.parent = rootNode
+
+            leftNode.right = root.right
+            root.right.parent = leftNode
+
+            return rootNode
+
+        elseif isa(root.value, d.multiplication)
             println("je to mult")
             ld = differ(root.left, var)
             rd = differ(root.right, var)

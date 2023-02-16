@@ -5,8 +5,34 @@ module Data
         
     abstract type Token end
 
+    abstract type Parenthesis <: Token end
+
+    struct leftparenth <: Parenthesis
+        value::String
+        function leftparenth(v::Any)
+            return new("(")
+        end
+        function leftparenth(v::Any, old::Any)
+            return new("(")
+        end
+    end
+
+    struct rightparenth <: Parenthesis
+        value::String
+        function rightparenth(v::Any)
+            return new(")")
+        end
+        function rightparenth(v::Any, old::Any)
+            return new(")")
+        end
+    end
+
+
     struct whitespace <: Token
         function whitespace(v::Any)
+            return new()
+        end
+        function whitespace(v::Any, old::Any)
             return new()
         end
     end
@@ -16,11 +42,17 @@ module Data
         function number(v::String)
             return new(parse(Float64, v))
         end
+        function number(v::String, old::Any)
+            return new(parse(Float64, v))
+        end
     end
 
     struct variable <: Token
         value::String
         function variable(v::String)
+            return new(v)
+        end
+        function variable(v::String, old::Any)
             return new(v)
         end
     end
@@ -32,11 +64,17 @@ module Data
         function sinus(v::String)
             return new("sin")
         end
+        function sinus(v::String, old::Any)
+            return new("sin")
+        end
     end
 
     struct cosinus <: Func
         value::String
         function cosinus(v::String)
+            return new("cos")
+        end
+        function cosinus(v::String, old::Any)
             return new("cos")
         end
     end
@@ -51,16 +89,30 @@ module Data
         function addition(v::Any)
             return new("+")
         end
+        function addition(v::Any, old::Any)
+            return new("+")
+        end
     end
 
     struct subtraction <: Operation
         value::String
+        unary::Bool
         function subtraction()
-            return new("-")
+            return new("-", false)
         end
         function subtraction(v::Any)
-            return new("-")
+            return new("-", false)
         end
+        function subtraction(v::Any, old::leftparenth)
+            return new("-", true)
+        end
+        function subtraction(v::Any, old::Nothing)
+            return new("-", true)
+        end
+        function subtraction(v::Any, old::Any)
+            return new("-", false)
+        end
+
     end
 
     struct multiplication <: Operation
@@ -69,6 +121,9 @@ module Data
             return new("*")
         end
         function multiplication(v::Any)
+            return new("*")
+        end
+        function multiplication(v::Any, old::Any)
             return new("*")
         end
     end
@@ -81,6 +136,9 @@ module Data
         function division(v::Any)
             return new("/")
         end
+        function division(v::Any, old::Any)
+            return new("/")
+        end
     end
 
     struct power <: Operation
@@ -91,24 +149,12 @@ module Data
         function power(v::Any)
             return new("^")
         end
-    end
-
-    abstract type Parenthesis <: Token end
-
-    struct leftparenth <: Parenthesis
-        value::String
-        function leftparenth(v::Any)
-            return new("(")
+        function power(v::Any, old::Any)
+            return new("^")
         end
     end
 
-    struct rightparenth <: Parenthesis
-        value::String
-        function rightparenth(v::Any)
-            return new(")")
-        end
-    end
-
+    
     function filterwhitespace(el::whitespace)
         return false
     end
@@ -167,6 +213,24 @@ module Data
 
     function enqueueQ(t::variable, q)
         push!(q, TreeNode(t))
+    end
+
+    function enqueueQ(s::subtraction, q)
+        if s.unary
+            right = pop!(q)
+
+            t = TreeNode(s, nothing, right)
+            right.parent = t
+            push!(q, t)
+        else
+            right = pop!(q)
+            left = pop!(q)
+    
+            t = TreeNode(o, left, right)
+            left.parent = t
+            right.parent = t
+            push!(q, t)
+        end
     end
 
     function enqueueQ(o::Operation, q)

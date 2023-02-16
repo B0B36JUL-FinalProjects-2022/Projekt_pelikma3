@@ -19,7 +19,8 @@ module differentiate
         last_text = Nothing
         toks = []
         tokens = d.Token[]
-
+        
+        oldToken = nothing
         while length(text) > 0 && last_text != text
             ruled = false
             for (type, regex) in _rules
@@ -27,8 +28,9 @@ module differentiate
                 if !isnothing(m)
                     matched = m.match
                     
-
-                    push!(tokens, type(String(m.match)));
+                    newToken = type(String(m.match), oldToken)
+                    oldToken = newToken
+                    push!(tokens, newToken);
 
                     push!(toks, matched)
                     len = length(matched)
@@ -61,6 +63,7 @@ module differentiate
             d.processToken(el, s, q)
         end
 
+
         while !isempty(s)
             #TODO - co kdyz neni Operation, mozna pouzit emptyStack() misto tohoto while
 
@@ -79,7 +82,7 @@ module differentiate
 
 
     # tokenStream = lex("sin(3*5+1)^2+y", "x", "y")
-    tokenStream = lex("3*x+1", "x")
+    tokenStream = lex("-5", "x")
     # println(tokenStream)
 
 
@@ -87,19 +90,20 @@ module differentiate
 
     println(root)
     println(root.right)
-    println(root.left)
+    println(root.right.right)
 
 
     rootDer = der.differ(root, "x")
 
 
-    println(rootDer)
-    println(rootDer.left)
-    println(rootDer.left.left)
-    println(rootDer.left.right)
-    println(rootDer.right)
-    println(rootDer.right.left)
-    println(rootDer.right.right)
+    # println(rootDer)
+    # println(rootDer.left)
+    # println(rootDer.left.right)
+    # println(rootDer.left.right.right)
+
+    # println(rootDer.right)
+    # println(rootDer.right.left)
+    # println(rootDer.right.right)
 
     # c = copy(root)
     # println(c.value == root.value)
