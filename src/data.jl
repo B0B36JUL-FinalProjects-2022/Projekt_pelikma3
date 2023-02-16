@@ -193,6 +193,19 @@ module Data
         end
     end
 
+    function copyTree(node::TreeNode)
+        n = TreeNode(node.value)
+        n.parent = node.parent
+        n.left = copyTree(node.left)
+        n.right = copyTree(node.right)
+
+        return n
+    end
+
+    function copyTree(node::Nothing)
+        return nothing
+    end
+
     rules = [
         (whitespace, r"^\s+"),
         (number, r"^([0-9]*[.])?([0-9]+)"),

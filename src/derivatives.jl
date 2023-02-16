@@ -7,7 +7,40 @@ module Derivative
 
     function differ(root::d.TreeNode, var::String)
         if isa(root.value, d.power)
-            nothing
+            rootToken = d.multiplication()
+            rootNode = d.TreeNode(rootToken)
+
+            leftToken = d.power()
+            leftNode = d.TreeNode(leftToken)
+
+            rootNode.left = leftNode
+            leftNode.parent = rootNode
+
+            leftNode.left = root.left
+            root.left.parent = leftNode
+            leftNode.right = root.right
+            root.right.parent = leftNode
+
+            rightToken = d.multiplication()
+            rightNode = d.TreeNode(rightToken)
+
+            # rootNode.right = rightNode
+            rightNode.parent = rootNode
+
+            rightleftToken = d.ln("ln")
+            rightleftNode = d.TreeNode(rightleftToken)
+            rightNode.left = rightleftNode
+            rightleftNode.parent = rightNode
+
+            rightleftNode.right = d.copyTree(leftNode.left)
+            rightleftNode.right.parent = rightleftNode
+
+            rightNode.right = d.copyTree(leftNode.right)
+            rightNode.right.parent = rightNode
+
+            rootNode.right = differ(rightNode, var)
+
+            return rootNode
         elseif isa(root.value, d.ln)
             rd = differ(root.right, var)
 
@@ -54,8 +87,32 @@ module Derivative
 
             return rootNode
 
+        elseif isa(root.value, d.cosinus)
+            rd = differ(root.right, var)
+            rootToken = d.multiplication()
+            rootNode = d.TreeNode(rootToken)
+
+            leftToken = d.subtraction("-", d.leftparenth("("))
+            leftNode = d.TreeNode(leftToken)
+
+            rootNode.left = leftNode
+            leftNode.parent = rootNode
+
+            leftrightToken = d.sinus("sin")
+            leftrightNode = d.TreeNode(leftrightToken)
+
+            leftNode.right = leftrightNode
+            leftrightNode.parent = leftNode
+
+            leftrightNode.right = root.right
+            root.right.parent = leftrightNode
+
+            rootNode.right = rd
+            rd.parent = rootNode
+
+            return rootNode
+
         elseif isa(root.value, d.multiplication)
-            println("je to mult")
             ld = differ(root.left, var)
             rd = differ(root.right, var)
 
@@ -126,8 +183,11 @@ module Derivative
             rd.parent = leftrightNode
 
             # rightNode.left = root.right
-            #crucial division
-            rightNode.left = d.TreeNode(root.right.value, rightNode, root.right.left, root.right.right)
+            #crucial division problem
+            # rightNode.left = d.TreeNode(root.right.value, rightNode, root.right.left, root.right.right)
+            rightNode.left = d.copyTree(root.right)
+            rightNode.left.parent = rightNode
+
 
             rightrightToken = d.number("2")
             rightrightNode = d.TreeNode(rightrightToken)
@@ -138,7 +198,6 @@ module Derivative
 
 
         elseif isa(root.value, d.addition)
-            println("je to add")
             ld = differ(root.left, var)
             rd = differ(root.right, var)
 
@@ -152,6 +211,34 @@ module Derivative
             rd.parent = rootNode
 
             return rootNode
+
+
+        elseif isa(root.value, d.subtraction)
+            if root.value.unary
+                rd = differ(root.right, var)
+
+                rootToken = d.subtraction("-", d.leftparenth("("))
+                rootNode = d.TreeNode(rootToken)
+
+                rootNode.right = rd
+                rd.parent = rootNode
+    
+                return rootNode
+            else
+                ld = differ(root.left, var)
+                rd = differ(root.right, var)
+    
+                rootToken = d.subtraction()
+                rootNode = d.TreeNode(rootToken)
+    
+                rootNode.left = ld
+                ld.parent = rootNode
+    
+                rootNode.right = rd
+                rd.parent = rootNode
+    
+                return rootNode
+            end
 
         elseif isa(root.value, d.number)
             n = d.number("0")
