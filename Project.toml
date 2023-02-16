@@ -2,3 +2,6 @@ name = "differentiate"
 uuid = "adc32880-1d54-4a11-9530-99c6b43ae260"
 authors = ["Matous Test <pritin.lp@gmail.com>"]
 version = "0.1.0"
+
+[deps]
+DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
