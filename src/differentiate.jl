@@ -1,12 +1,11 @@
-include("data.jl")
-
-using .Data
+include("derivatives.jl")
 
 
 module differentiate
 
     using DataStructures
     d = Main.Data
+    der = Main.Derivative
 
 
     function lex(text, args...)
@@ -15,8 +14,6 @@ module differentiate
         for el in args
             push!(_rules, (d.variable, Regex("^"*el)))
         end
-
-        println(_rules)
 
 
         last_text = Nothing
@@ -81,7 +78,8 @@ module differentiate
     end
 
 
-    tokenStream = lex("sin(3*5+1)^2+y", "x", "y")
+    # tokenStream = lex("sin(3*5+1)^2+y", "x", "y")
+    tokenStream = lex("3*x+1", "x")
     # println(tokenStream)
 
 
@@ -89,7 +87,23 @@ module differentiate
 
     println(root)
     println(root.right)
+    println(root.left)
 
+
+    rootDer = der.differ(root, "x")
+
+
+    println(rootDer)
+    println(rootDer.left)
+    println(rootDer.left.left)
+    println(rootDer.left.right)
+    println(rootDer.right)
+    println(rootDer.right.left)
+    println(rootDer.right.right)
+
+    # c = copy(root)
+    # println(c.value == root.value)
+    # println(c === root)
 
 
 end # module

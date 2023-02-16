@@ -132,6 +132,9 @@ module Data
             return new(value, nothing, l, r)
         end
 
+        function TreeNode(value::Token, p::Union{TreeNode, Nothing}, l::Union{TreeNode, Nothing}, r::Union{TreeNode, Nothing})
+            return new(value, p, l, r)
+        end
     end
 
     rules = [
@@ -242,5 +245,7 @@ module Data
 
 
     Base.show(io::IO, t::TreeNode) = show(io, t.value)
+    # Base.copy(m::multiplication) = multiplication(m.value)
+    Base.copy(t::TreeNode) = TreeNode(t.value, t.parent, t.left, t.right)
 
 end
