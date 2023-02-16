@@ -2,7 +2,6 @@ module Data
 
     using DataStructures
     
-        
     abstract type Token end
 
     abstract type Parenthesis <: Token end
@@ -193,11 +192,14 @@ module Data
         end
     end
 
+
+
     function copyTree(node::TreeNode)
         n = TreeNode(node.value)
         n.parent = node.parent
         n.left = copyTree(node.left)
         n.right = copyTree(node.right)
+
 
         return n
     end
@@ -330,9 +332,21 @@ module Data
         nothing
     end
 
+    
+    struct FuncStructure
+        root::TreeNode
+        list
+    end
 
 
-    Base.show(io::IO, t::TreeNode) = show(io, t.value)
+
+    # Base.show(io::IO, t::TreeNode) = show(io, t.value)
+
+    Base.show(io::IO, t::TreeNode) = print(printT(t.left)*string(t.value.value)*printT(t.right))
+
+    printT(t::TreeNode) = printT(t.left)*string(t.value.value)*printT(t.right)
+    printT(t::Nothing) = " "
+
     # Base.copy(m::multiplication) = multiplication(m.value)
     Base.copy(t::TreeNode) = TreeNode(t.value, t.parent, t.left, t.right)
 

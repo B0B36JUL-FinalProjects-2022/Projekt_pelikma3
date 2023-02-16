@@ -8,7 +8,7 @@ module differentiate
     der = Main.Derivative
 
 
-    function lex(text, args...)
+    function lex(text, args)
         _rules = d.rules
 
         for el in args
@@ -70,53 +70,40 @@ module differentiate
             d.enqueueQ(pop!(s), q)
         end
 
-
-        # println(length(q))
-        # root = first(q)
-        # println(root)
-        # println(root.left)
-        # println(root.right)
-
         return first(q)
     end
 
+    function define_function(input, args...)
+        println(typeof(args))
 
-    # tokenStream = lex("sin(3*5+1)^2+y", "x", "y")
-    tokenStream = lex("5+cos(x)", "x")
-    # println(tokenStream)
+        tokenStream = lex(input, args)
+        root = shunting_yard(tokenStream)
 
+        fce = d.FuncStructure(root, args)
+        return fce
+        # rootDer = der.differ(root, "x")
+        # println(der._evaluate(rootDer, "s", 1.0))
+    end
 
-    root = shunting_yard(tokenStream)
-
-    println(root)
-    println(root.left)
-    println(root.right)
-
-    println(der.evaluate(root, "s", 1.0))
-
-
-    rootDer = der.differ(root, "x")
-
-    println(der.evaluate(rootDer, "s", 1.0))
-
+    function differentiate_(f::d.FuncStructure, var::String)
+        rootDer = der.differ(f.root, var)
+        fce = d.FuncStructure(rootDer, f.list)
+        return fce
+    end
 
 
-    # println(rootDer)
-    # println(rootDer.left)
-    # println(rootDer.left.left)
-    # println(rootDer.left.right)
+    f = define_function("(ln(x*y))^2", "x", "y")
+    println(f.list)
+    println(f.root)
 
-    # println(rootDer.right)
-    # println(rootDer.right.left)
-    # println(rootDer.right.left.left)
 
-    # println(rootDer.right.left.left.left)
-    # println(rootDer.right.left.left.left.left)
-    # println(rootDer.right.left.left.left.right)
-    # println(rootDer.right.left.left.right)
 
-    # println(rootDer.right.left.right)
-    # println(rootDer.right.right.right)
+    f_der_x = differentiate_(f, "x")
+    println(f_der_x.root)
+
+
+    e = der.evaluate(f_der_x, 2.0, 2.0)
+    println(e)
 
 
 end # module

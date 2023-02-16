@@ -5,44 +5,65 @@ include("data.jl")
 module Derivative
     d = Main.Data
 
-    function eval(token::d.variable, node::d.TreeNode, var::String, value::Float64)
-        return value
+    function findIndex(vars, var::String)
+        i = 1
+        for el in vars
+            if el == var
+                return i
+            end
+            i = i + 1
+        end
+
     end
-    function eval(token::d.number, node::d.TreeNode, var::String, value::Float64)
+
+    function eval(token::d.variable, node::d.TreeNode, vars, vals)
+        index = findIndex(vars, token.value)
+        return vals[index]
+    end
+    function eval(token::d.number, node::d.TreeNode, vars, vals)
         return token.value
     end
-    function eval(token::Nothing, node::d.TreeNode, var::String, value::Float64)
+    function eval(token::Nothing, node::d.TreeNode, vars, vals)
         return 0
     end
-    function eval(token::d.addition, node::d.TreeNode, var::String, value::Float64)
-        return evaluate(node.left, var, value) + evaluate(node.right, var, value)
+    function eval(token::d.addition, node::d.TreeNode, vars, vals)
+        return _evaluate(node.left, vars, vals) + _evaluate(node.right, vars, vals)
     end
-    function eval(token::d.subtraction, node::d.TreeNode, var::String, value::Float64)
-        return evaluate(node.left, var, value) - evaluate(node.right, var, value)
+    function eval(token::d.subtraction, node::d.TreeNode, vars, vals)
+        return _evaluate(node.left, vars, vals) - _evaluate(node.right, vars, vals)
     end
-    function eval(token::d.multiplication, node::d.TreeNode, var::String, value::Float64)
-        return evaluate(node.left, var, value) * evaluate(node.right, var, value)
+    function eval(token::d.power, node::d.TreeNode, vars, vals)
+        return _evaluate(node.left, vars, vals) ^ _evaluate(node.right, vars, vals)
     end
-    function eval(token::d.division, node::d.TreeNode, var::String, value::Float64)
-        return evaluate(node.left, var, value) / evaluate(node.right, var, value)
+    function eval(token::d.multiplication, node::d.TreeNode, vars, vals)
+        return _evaluate(node.left, vars, vals) * _evaluate(node.right, vars, vals)
     end
-    function eval(token::d.sinus, node::d.TreeNode, var::String, value::Float64)
-        return sin(evaluate(node.right, var, value))
+    function eval(token::d.division, node::d.TreeNode, vars, vals)
+        return _evaluate(node.left, vars, vals) / _evaluate(node.right, vars, vals)
     end
-    function eval(token::d.cosinus, node::d.TreeNode, var::String, value::Float64)
-        return cos(evaluate(node.right, var, value))
+    function eval(token::d.sinus, node::d.TreeNode, vars, vals)
+        return sin(_evaluate(node.right, vars, vals))
     end
-    function eval(token::d.ln, node::d.TreeNode, var::String, value::Float64)
-        return log(evaluate(node.right, var, value))
+    function eval(token::d.cosinus, node::d.TreeNode, vars, vals)
+        return cos(_evaluate(node.right, vars, vals))
+    end
+    function eval(token::d.ln, node::d.TreeNode, vars, vals)
+        return log(_evaluate(node.right, vars, vals))
     end
 
 
-    function evaluate(root::d.TreeNode, var::String, value::Float64)
-        return eval(root.value, root, var, value)    
+    function _evaluate(root::d.TreeNode, vars, vals)
+        return eval(root.value, root, vars, vals)    
     end
-    function evaluate(root::Nothing, var::String, value::Float64)
+    function _evaluate(root::Nothing, vars, vals)
         return 0 
     end
+
+    function evaluate(f::d.FuncStructure, args...)
+        return _evaluate(f.root, f.list, args)
+    end
+
+
 
     function differ(root::d.TreeNode, var::String)
         if isa(root.value, d.power)
