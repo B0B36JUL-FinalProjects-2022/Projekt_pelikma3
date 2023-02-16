@@ -79,6 +79,16 @@ module Data
         end
     end
 
+    struct ln <: Func
+        value::String
+        function ln(v::String)
+            return new("ln")
+        end
+        function ln(v::String, old::Any)
+            return new("ln")
+        end
+    end
+
     abstract type Operation <: Token end
 
     struct addition <: Operation
@@ -193,6 +203,7 @@ module Data
         (power, r"^\^"),
         (sinus, r"^sin"),
         (cosinus, r"^cos"),
+        (ln, r"^ln"),
         (leftparenth, r"^\("),
         (rightparenth, r"^\)"),
         (power, r"^\^")
@@ -226,7 +237,7 @@ module Data
             right = pop!(q)
             left = pop!(q)
     
-            t = TreeNode(o, left, right)
+            t = TreeNode(s, left, right)
             left.parent = t
             right.parent = t
             push!(q, t)

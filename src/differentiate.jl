@@ -82,13 +82,14 @@ module differentiate
 
 
     # tokenStream = lex("sin(3*5+1)^2+y", "x", "y")
-    tokenStream = lex("-5", "x")
+    tokenStream = lex("ln(x)*5", "x")
     # println(tokenStream)
 
 
     root = shunting_yard(tokenStream)
 
     println(root)
+    println(root.left)
     println(root.right)
     println(root.right.right)
 
@@ -96,12 +97,21 @@ module differentiate
     rootDer = der.differ(root, "x")
 
 
-    # println(rootDer)
-    # println(rootDer.left)
+    println(rootDer)
+    println(rootDer.left)
+    println(rootDer.left.left.left)
+
+    println(rootDer.left.left)
+    # println(rootDer.left.left.left)
+    # println(rootDer.left.left.right)
+
     # println(rootDer.left.right)
+    # println(rootDer.left.right.left)
+
     # println(rootDer.left.right.right)
 
-    # println(rootDer.right)
+    println(rootDer.right.right)
+
     # println(rootDer.right.left)
     # println(rootDer.right.right)
 
